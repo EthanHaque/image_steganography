@@ -3,8 +3,9 @@ from PIL import Image
 class ReadImage:
     pixelArray = []
     im = None
-    height = None
-    width = None
+    height = 0
+    width = 0
+    channels = 0
 
     def __init__(self, path):
         try:
@@ -15,14 +16,15 @@ class ReadImage:
         self.height = self.im.height
         self.width = self.im.width
         self.pixelArray = self.createPixelArray()
+        self.channels = len(self.getPixelArray()[0][0])
 
     def createPixelArray(self):
         pxMap = []
-        for y in range(self.height):
+        for y in range(self.getHeight()):
             pxMap.append([])
-            for x in range(self.width):
-                pixel = self.im.getpixel((x,y))
-                pxMap.append(pixel)
+            for x in range(self.getWidth()):
+                pixel = self.getImage().getpixel((x,y))
+                pxMap[y].append(pixel)
         return(pxMap)
     
     def getPixelArray(self):
@@ -37,7 +39,10 @@ class ReadImage:
     def getWidth(self):
         return(self.width)
 
+    def getChannels(self):
+        return(self.channels)
+
 if __name__ == "__main__":
-    image = r"C:\Users\Ethan_H_Laptop\Desktop\programs\python\really random stuff\hiddenImage\images\stitch.png"
+    image = r"C:\Users\ebaba\Desktop\Python\Image_Steganography\images\stitch.png"
     readImage = ReadImage(image)
-    print(readImage.pixelArray)
+    print(readImage.getChannels())
