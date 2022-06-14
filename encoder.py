@@ -119,39 +119,53 @@ def decode_message_from_image(image, bits_per_char=8, no_channels=3, metadata_by
     :return: The decoded message.
     """
     pixel_map = image.load()
-    metadata_bits = metadata_bytes * 8
+    bits_per_byte = 8
+    metadata_bits = metadata_bytes * bits_per_byte
     max_message_length = 2 ** metadata_bits - 1
 
     # Bounds checking
     pixel_count = image.width * image.height
     bits_available = pixel_count * no_channels
-    if bits_available < (metadata_bytes * 8):
+    if bits_available < (metadata_bytes * bits_per_byte):
         raise ValueError("Image is too small to decode.")
 
     # Message length decoding
     bits_read_count = 0
     message_length = 0
-    for i in range(metadata_bits):
-        channel, col, row = compute_map_location(bits_read_count, image.width, no_channels)
-        message_length |= pixel_map[col, row][channel] & 0x01
-        message_length <<= 1
-        bits_read_count += 1
+    for i in range(metadata_bytes):
+        for j in range(bits_per_byte):
+            message_length = append_bit(message_length, bits_read_count, image.width, no_channels, pixel_map)
+            bits_read_count += 1
     message_length >>= 1
 
-    # Message decoding
+    # Decoding message
     message = []
     for i in range(message_length):
         ascii_val = 0
         for j in range(bits_per_char):
-            channel, col, row = compute_map_location(bits_read_count, image.width, no_channels)
-            ascii_val |= pixel_map[col, row][channel] & 0x01
-            ascii_val <<= 1
+            ascii_val = append_bit(ascii_val, bits_read_count, image.width, no_channels, pixel_map)
             bits_read_count += 1
         ascii_val >>= 1
 
         message.append(chr(ascii_val))
 
     return "".join(message)
+
+
+def append_bit(running_value, bits_read_count, image_width, no_channels, pixel_map):
+    """
+    Appends a bit to a running value from the least significant bit of each channel of a pixel.
+    :param running_value: The running value that is continually updated.
+    :param bits_read_count: The number of bits already read.
+    :param image_width: The width of the image.
+    :param no_channels: The number of channels per pixel.
+    :param pixel_map: The pixel map of the image.
+    :return: The updated running value.
+    """
+    channel, col, row = compute_map_location(bits_read_count, image_width, no_channels)
+    running_value |= pixel_map[col, row][channel] & 0x01
+    running_value <<= 1
+    return running_value
 
 
 if __name__ == '__main__':
