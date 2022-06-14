@@ -63,6 +63,7 @@ def _encode_message_into_image(image, message, bits_per_char=8, no_channels=3, m
             update_pixel_channel(ascii_val, bit_position, bits_changed_count, image.width, no_channels, pixel_map)
             bits_changed_count += 1
 
+
     return image
 
 
@@ -78,7 +79,7 @@ def update_pixel_channel(byte, bit_position, count, image_width, no_channels, pi
     """
     bit = (byte >> bit_position) & 0x01
     channel, col, row = compute_map_location(count, image_width, no_channels)
-    new_value = pixel_map[col, row][channel] & (0xFE | bit)
+    new_value = (pixel_map[col, row][channel] & 0xFE) | bit
     pixel_val = list(pixel_map[col, row])
     pixel_val[channel] = new_value
     pixel_map[col, row] = tuple(pixel_val)
@@ -109,7 +110,7 @@ def encode(image_path, message):
     return encoded_image
 
 
-def decode_message_from_image(image, bits_per_char=8, no_channels=3, metadata_bytes=4):
+def _decode_message_from_image(image, bits_per_char=8, no_channels=3, metadata_bytes=4):
     """
     Decodes a message from an image using the least significant bit of each pixel.
     :param image: The image to decode the message from.
@@ -132,11 +133,11 @@ def decode_message_from_image(image, bits_per_char=8, no_channels=3, metadata_by
     # Message length decoding
     bits_read_count = 0
     message_length = 0
-    for i in range(metadata_bytes):
-        for j in range(bits_per_byte):
-            message_length = append_bit(message_length, bits_read_count, image.width, no_channels, pixel_map)
-            bits_read_count += 1
+    for i in range(metadata_bits):
+        message_length = append_bit(message_length, bits_read_count, image.width, no_channels, pixel_map)
+        bits_read_count += 1
     message_length >>= 1
+
 
     # Decoding message
     message = []
@@ -169,7 +170,7 @@ def append_bit(running_value, bits_read_count, image_width, no_channels, pixel_m
 
 
 if __name__ == '__main__':
-    img = encode("./images/white.png", "Hello World!")
-    img.show()
-    message = decode_message_from_image(img)
+    img = encode("./images/black.png", "hello this is a test")
+    # img.show()
+    message = _decode_message_from_image(img)
     print(message)
