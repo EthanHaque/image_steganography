@@ -1,3 +1,4 @@
+import argparse
 from PIL import Image
 
 
@@ -63,7 +64,6 @@ def _encode_message_into_image(image, message, bits_per_char=8, no_channels=3, m
             update_pixel_channel(ascii_val, bit_position, bits_changed_count, image.width, no_channels, pixel_map)
             bits_changed_count += 1
 
-
     return image
 
 
@@ -98,15 +98,20 @@ def compute_map_location(count, width, no_channels):
     return channel, col, row
 
 
-def encode(image_path, message):
+def encode(image_path, message, output_path, bits_per_char=8, no_channels=3, metadata_bytes=4):
     """
     Encodes a message into an image using the least significant bit of each pixel.
     :param image_path: The path to the image to encode the message into.
     :param message: The message to encode.
+    :param output_path: The path to the output image.
+    :param bits_per_char: The number of bits per character.
+    :param no_channels: The number of channels per pixel.
+    :param metadata_bytes: The number of bytes used for metadata.
     :return: The encoded image.
     """
     image = read_image(image_path)
-    encoded_image = _encode_message_into_image(image, message)
+    encoded_image = _encode_message_into_image(image, message, bits_per_char, no_channels, metadata_bytes)
+    encoded_image.save(output_path)
     return encoded_image
 
 
@@ -122,7 +127,6 @@ def _decode_message_from_image(image, bits_per_char=8, no_channels=3, metadata_b
     pixel_map = image.load()
     bits_per_byte = 8
     metadata_bits = metadata_bytes * bits_per_byte
-    max_message_length = 2 ** metadata_bits - 1
 
     # Bounds checking
     pixel_count = image.width * image.height
@@ -137,7 +141,6 @@ def _decode_message_from_image(image, bits_per_char=8, no_channels=3, metadata_b
         message_length = append_bit(message_length, bits_read_count, image.width, no_channels, pixel_map)
         bits_read_count += 1
     message_length >>= 1
-
 
     # Decoding message
     message = []
@@ -169,8 +172,90 @@ def append_bit(running_value, bits_read_count, image_width, no_channels, pixel_m
     return running_value
 
 
+def decode(image_path, bits_per_char=8, no_channels=3, metadata_bytes=4):
+    """
+    Decodes a message from an image using the least significant bit of each pixel.
+    :param image_path: The path to the image to decode the message from.
+    :param bits_per_char: The number of bits per character.
+    :param no_channels: The number of channels per pixel.
+    :param metadata_bytes: The number of bytes used for metadata.
+    :return: The decoded message.
+    """
+    image = read_image(image_path)
+    decoded_message = _decode_message_from_image(image, bits_per_char, no_channels, metadata_bytes)
+    return decoded_message
+
+
+def init_parser():
+    """
+    Initializes the argument parser.
+    :return: The initialized argument parser.
+    """
+    parser = argparse.ArgumentParser(description="Encodes and decodes messages into and from images.")
+    subparsers = parser.add_subparsers(dest="command")
+
+    encode_parser = subparsers.add_parser("encode", help="Encodes a message into an image.")
+    encode_parser.add_argument("image_path", help="The path to the image to encode the message into.")
+    encode_parser.add_argument("message", help="The message to encode.")
+    encode_parser.add_argument("output_path", help="The path to the output image.")
+    encode_parser.add_argument("-b", "--bits-per-char", type=int, default=8, help="The number of bits per character.")
+    encode_parser.add_argument("-c", "--channels", type=int, default=3, help="The number of channels per pixel.")
+    encode_parser.add_argument("-m", "--metadata-bytes", type=int, default=4,
+                               help="The number of bytes used for metadata.")
+    encode_parser.add_argument("-v", "--verbose", action="store_true", help="Shows the encoded image.")
+    encode_parser.add_argument("-d", "--debug", action="store_true",
+                               help="Shows the encoded image and prints the encoded message.")
+    encode_parser.set_defaults(func=encode)
+
+    decode_parser = subparsers.add_parser("decode", help="Decodes a message from an image.")
+    decode_parser.add_argument("image_path", help="The path to the image to decode the message from.")
+    decode_parser.add_argument("-b", "--bits-per-char", type=int, default=8, help="The number of bits per character.")
+    decode_parser.add_argument("-c", "--channels", type=int, default=3, help="The number of channels per pixel.")
+    decode_parser.add_argument("-m", "--metadata-bytes", type=int, default=4,
+                               help="The number of bytes used for metadata.")
+    decode_parser.add_argument("-o", "--output-path", help="The path to the output text file.")
+    decode_parser.add_argument("-q", "--quiet", action="store_true", help="Does not print out the decoded message.")
+    decode_parser.set_defaults(func=decode)
+
+    return parser
+
+
+def main():
+    """
+    Main function.
+    """
+    parser = init_parser()
+    args = parser.parse_args()
+
+    if args.command == "encode":
+        image = args.func(args.image_path,
+                          args.message,
+                          args.output_path,
+                          args.bits_per_char,
+                          args.channels,
+                          args.metadata_bytes)
+        if args.verbose:
+            image.show()
+        if args.debug:
+            print(args.message)
+            image.show()
+
+    elif args.command == "decode":
+        message = args.func(args.image_path,
+                            args.bits_per_char,
+                            args.channels,
+                            args.metadata_bytes)
+        if not args.quiet:
+            print(message)
+
+        if args.output_path:
+            with open(args.output_path, "w") as f:
+                f.write(message)
+
+
 if __name__ == '__main__':
-    img = encode("./images/black.png", "hello this is a test")
-    # img.show()
-    message = _decode_message_from_image(img)
-    print(message)
+    # im = encode("./images/black_stripes.png", "12121212121212121212")
+    # im.show()
+    # hidden_message = _decode_message_from_image(im)
+    # print(hidden_message)
+    main()
