@@ -254,8 +254,4 @@ def main():
 
 
 if __name__ == '__main__':
-    # im = encode("./images/black_stripes.png", "12121212121212121212")
-    # im.show()
-    # hidden_message = _decode_message_from_image(im)
-    # print(hidden_message)
     main()
