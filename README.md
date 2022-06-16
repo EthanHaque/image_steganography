@@ -26,7 +26,7 @@ $ python encoder.py decode ./images/black.png -o ./output/black.txt -q # quiet
 - `-b, --bits-per-char`: The number of bits to use for encoding. Defaults to 7.
 - `-c, --channels`: The number of channels to use for encoding. Defaults to 3.
 - `-m, --metadaya-bytes`: The number of bytes to use for metadata. Defaults 
-  to 4.
+  to 4. (This is the number of bytes used to store the message length.)
 - `-v, --verbose`: Shows the encoded image once finished.
 - `-d, --debug`: Shows the encoded image and prints the encoded message.
 - `-h, --help`: Gives usage information.
@@ -36,7 +36,7 @@ $ python encoder.py decode ./images/black.png -o ./output/black.txt -q # quiet
 - `-b, --bits-per-char`: The number of bits to use for decoding. Defaults to 7.
 - `-c, --channels`: The number of channels to use for decoding. Defaults to 3.
 - `-m, --metadaya-bytes`: The number of bytes to use for metadata. Defaults
-    to 4.
+    to 4. (This is the number of bytes used to store the message length.)
 - `-o, --output-path`: Output path to a text file for the decoded message.
 - `-q, --quiet`: Suppress output.
 
