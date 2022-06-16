@@ -383,14 +383,14 @@ def init_parser():
         description="Encodes and decodes messages into and from images.")
     subparsers = parser.add_subparsers(dest="command")
 
-    encode_parser = subparsers.add_parser("encode",
-                                          help="Encodes a message into an image.")
-    encode_parser.add_argument("image_path",
-                               help="The path to the image to encode the message into.")
+    encode_parser = subparsers.add_parser(
+        "encode", help="Encodes a message into an image.")
+    encode_parser.add_argument(
+        "image_path", help="The path to the image to encode the message into.")
     encode_parser.add_argument("message", help="The message to encode.")
     encode_parser.add_argument("output_path",
                                help="The path to the output image.")
-    encode_parser.add_argument("-b", "--bits-per-char", type=int, default=8,
+    encode_parser.add_argument("-b", "--bits-per-char", type=int, default=7,
                                help="The number of bits per character.")
     encode_parser.add_argument("-c", "--channels", type=int, default=3,
                                help="The number of channels per pixel.")
@@ -399,14 +399,15 @@ def init_parser():
     encode_parser.add_argument("-v", "--verbose", action="store_true",
                                help="Shows the encoded image.")
     encode_parser.add_argument("-d", "--debug", action="store_true",
-                               help="Shows the encoded image and prints the encoded message.")
+                               help="Shows the encoded image and prints the "
+                                    "encoded message.")
     encode_parser.set_defaults(func=encode)
 
-    decode_parser = subparsers.add_parser("decode",
-                                          help="Decodes a message from an image.")
-    decode_parser.add_argument("image_path",
-                               help="The path to the image to decode the message from.")
-    decode_parser.add_argument("-b", "--bits-per-char", type=int, default=8,
+    decode_parser = subparsers.add_parser(
+        "decode", help="Decodes a message from an image.")
+    decode_parser.add_argument(
+        "image_path", help="The path to the image to decode the message from.")
+    decode_parser.add_argument("-b", "--bits-per-char", type=int, default=7,
                                help="The number of bits per character.")
     decode_parser.add_argument("-c", "--channels", type=int, default=3,
                                help="The number of channels per pixel.")
