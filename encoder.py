@@ -406,10 +406,12 @@ def init_parser():
                                     "encoded message.")
     encode_parser.set_defaults(func=encode)
 
-    decode_parser = subparsers.add_parser(
-        "decode", help="Decodes a message from an image.")
-    decode_parser.add_argument(
-        "image_path", help="The path to the image to decode the message from.")
+    decode_parser = subparsers.add_parser("decode",
+                                          help="Decodes a message from an "
+                                               "image.")
+    decode_parser.add_argument("image_path",
+                               help="The path to the image to decode the "
+                                    "message from.")
     decode_parser.add_argument("-b", "--bits-per-char", type=int, default=7,
                                help="The number of bits per character.")
     decode_parser.add_argument("-c", "--channels", type=int, default=3,
