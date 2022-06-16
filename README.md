@@ -43,10 +43,14 @@ $ python encoder.py decode ./images/black.png -o ./output/black.txt -q # quiet
 ## How it works
 
 The messages are encoded into the image by setting the least significant bit of
-each channel of each pixel to a bit of data in the message. The message must be
-composed of ASCII character. However, the script can be easily modified to 
-allow for Unicode characters greater than 0x7F. The drawback would be an 
-increase memory footprint for the encoded message as the script would need to 
-encode each character with more bits of information than may be needed. The
-decoding algorithm just reverses the encoding process. There is no encryption
-done, just obfuscation.
+each channel of each pixel to a bit of data in the message. 
+
+The message must be composed of ASCII character. However, the script can be 
+easily modified to allow for Unicode characters greater than 0x7F. The drawback
+would be an increased memory footprint for the encoded message as the 
+script would need to encode each character with more bits of information than 
+may be needed. 
+
+The decoding algorithm just reverses the encoding process. 
+
+There is no encryption performed on the input message.
