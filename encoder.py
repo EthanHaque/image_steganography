@@ -383,10 +383,13 @@ def init_parser():
         description="Encodes and decodes messages into and from images.")
     subparsers = parser.add_subparsers(dest="command")
 
-    encode_parser = subparsers.add_parser(
-        "encode", help="Encodes a message into an image.")
-    encode_parser.add_argument(
-        "image_path", help="The path to the image to encode the message into.")
+    encode_parser = subparsers.add_parser("encode",
+                                          help="Encodes a message into an "
+                                               "image.")
+
+    encode_parser.add_argument("image_path",
+                               help="The path to the image to encode the "
+                                    "message into.")
     encode_parser.add_argument("message", help="The message to encode.")
     encode_parser.add_argument("output_path",
                                help="The path to the output image.")
